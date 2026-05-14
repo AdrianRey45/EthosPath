@@ -15,7 +15,7 @@ Gamificación Real: Implementamos un sistema de niveles y rangos para que tu pro
 🛠️ El Motor Tecnológico (Stack)
 Para este primer gran proyecto, hemos elegido un stack robusto pero flexible:
 
-Backend: Java 17 con Spring Boot, aprovechando la potencia de los servicios REST para una comunicación fluida.
+Backend: Java 21 con Spring Boot, aprovechando la potencia de los servicios REST para una comunicación fluida.
 
 Base de Datos: Gestión de datos relacionales para mantener la integridad de los perfiles y misiones.
 
