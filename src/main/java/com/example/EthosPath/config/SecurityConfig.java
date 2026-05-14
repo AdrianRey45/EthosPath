@@ -21,10 +21,11 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().permitAll()
             )
             .headers(headers -> headers.frameOptions(frame -> frame.disable()));
-            
+
         return http.build();
     }
 
