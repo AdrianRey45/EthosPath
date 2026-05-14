@@ -20,6 +20,11 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("El email ya está registrado");
         }
+        
+        user.setLevel(1);
+        user.setCurrentXp(0);
+        user.setTotalXp(0);
+        
         return userRepository.save(user);
     }
 
@@ -27,6 +32,11 @@ public class UserService {
         return userRepository.findByEmail(email)
             .filter(u -> u.getPassword().equals(password))
             .orElseThrow(() -> new RuntimeException("Credenciales incorrectas"));
+    }
+
+    public User findById(String id) {
+        return userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
     public void recoverPassword(String email, String newPassword) {
