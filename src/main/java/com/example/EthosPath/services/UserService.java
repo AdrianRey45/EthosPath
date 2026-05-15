@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.Set;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -34,20 +35,24 @@ public class UserService {
             .orElseThrow(() -> new RuntimeException("Credenciales incorrectas"));
     }
 
-    public User findById(String id) {
-        return userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
-    public void recoverPassword(String email, String newPassword) {
-        User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("Email no encontrado"));
-        user.setPassword(newPassword);
-        userRepository.save(user);
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
-    public Optional<User> getUserProfile(String id) {
-        return userRepository.findById(id);
+    public List<User> searchUsers(String username) {
+        return userRepository.findByUsernameContainingIgnoreCase(username);
+    }
+
+    public Optional<User> getUserProfile(String identifier) {
+        Optional<User> user = userRepository.findById(identifier);
+        if (user.isEmpty()) {
+            return userRepository.findByUsername(identifier);
+        }
+        return user;
     }
 
     public void addExperience(String userId, Integer xpToAdd) {

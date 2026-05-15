@@ -7,9 +7,11 @@ import com.example.EthosPath.model.entity.User;
 import com.example.EthosPath.services.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,28 +24,58 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@RequestBody RegistrationRequest request) {
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
-        user.setLevel(1);
-        user.setCurrentXp(0);
-        user.setTotalXp(0);
+    public ResponseEntity<?> register(@RequestBody RegistrationRequest request) {
+        try {
+            User user = new User();
+            user.setUsername(request.getUsername());
+            user.setEmail(request.getEmail());
+            user.setPassword(request.getPassword());
+            user.setLevel(1);
+            user.setCurrentXp(0);
+            user.setTotalXp(0);
 
-        User savedUser = userService.registerUser(user);
-        return ResponseEntity.ok(convertToResponse(savedUser));
+            User savedUser = userService.registerUser(user);
+            return ResponseEntity.ok(convertToResponse(savedUser));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@RequestBody AuthRequest request) {
-        User user = userService.login(request.getEmail(), request.getPassword());
-        return ResponseEntity.ok(convertToResponse(user));
+    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+        try {
+            User user = userService.login(request.getEmail(), request.getPassword());
+            return ResponseEntity.ok(convertToResponse(user));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponse>> searchUsers(@RequestParam String username) {
+        List<UserResponse> users = userService.searchUsers(username).stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getProfile(@PathVariable String id) {
         return userService.getUserProfile(id)
+                .map(user -> ResponseEntity.ok(convertToResponse(user)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/username/{username}")
+    public ResponseEntity<UserResponse> getProfileByUsername(@PathVariable String username) {
+        return userService.findByUsername(username)
+                .map(user -> ResponseEntity.ok(convertToResponse(user)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserResponse> getProfileByEmail(@PathVariable String email) {
+        return userService.findByEmail(email)
                 .map(user -> ResponseEntity.ok(convertToResponse(user)))
                 .orElse(ResponseEntity.notFound().build());
     }
